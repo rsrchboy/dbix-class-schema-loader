@@ -30,6 +30,16 @@ my $reqs = {
         },
     },
 
+    protect_overloads => {
+        req => {
+            'MooseX::MarkAsMethods' => '0.013',
+        },
+        pod => {
+            title => 'protect_overloads',
+            desc  => 'Modules required for the protect_overloads option',
+        },
+    },
+
     dbicdump_config => {
         req => {
             'Config::Any' => '0',

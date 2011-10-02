@@ -874,10 +874,21 @@ sub new {
     $self->_validate_result_roles_map;
 
     if ($self->use_moose) {
-        if (not DBIx::Class::Schema::Loader::Optional::Dependencies->req_ok_for('use_moose')) {
-            die sprintf "You must install the following CPAN modules to enable the use_moose option: %s.\n",
-                DBIx::Class::Schema::Loader::Optional::Dependencies->req_missing_for('use_moose');
-        }
+        my $check = sub {
+            if (not DBIx::Class::Schema::Loader::Optional::Dependencies->req_ok_for($_[0])) {
+                die sprintf "You must install the following CPAN modules to enable the $_[0] option: %s.\n",
+                    DBIx::Class::Schema::Loader::Optional::Dependencies->req_missing_for($_[0]);
+            }
+        };
+
+        $check->('use_moose');
+        $check->('protect_overloads') if $self->protect_overloads;
+    }
+    else {
+
+        # protect_overloads makes no sense outside of use_moose
+        die "Setting protect_overloads without setting use_moose makes no sense!\n"
+            if $self->protect_overloads;
     }
 
     $self->{_tables} = {};
