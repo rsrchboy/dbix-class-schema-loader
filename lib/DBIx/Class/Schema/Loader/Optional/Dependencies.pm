@@ -32,7 +32,7 @@ my $reqs = {
 
     protect_overloads => {
         req => {
-            'MooseX::MarkAsMethods' => '0.013',
+            'MooseX::MarkAsMethods' => '0.13',
         },
         pod => {
             title => 'protect_overloads',
