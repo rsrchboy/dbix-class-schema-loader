@@ -46,6 +46,25 @@ $t->dump_test(
 
 $t->cleanup;
 
+# check protect_overloads works as expected
+$t->dump_test(
+  classname => 'DBICTest::DumpMore::1',
+  options => {
+    use_moose         => 1,
+    protect_overloads => 1,
+  },
+  regexes => {
+    schema => [
+      qr/\nuse MooseX::MarkAsMethods autoclean => 1;\n/,
+    ],
+    Foo => [
+      qr/\nuse MooseX::MarkAsMethods autoclean => 1;\n/,
+    ],
+  },
+);
+
+$t->cleanup;
+
 # now upgrade a fresh non-moose schema to use_moose=1
 $t->dump_test(
   classname => 'DBICTest::DumpMore::1',
