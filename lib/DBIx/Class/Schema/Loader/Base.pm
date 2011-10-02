@@ -57,6 +57,7 @@ __PACKAGE__->mk_group_ro_accessors('simple', qw/
                                 result_base_class
                                 result_roles
                                 use_moose
+                                protect_overloads
                                 overwrite_modifications
 
                                 relationship_attrs
@@ -695,10 +696,17 @@ __PACKAGE__->table >> calls, and to some other things like Oracle sequences.
 =head2 use_moose
 
 Creates Schema and Result classes that use L<Moose>, L<MooseX::NonMoose> and
-L<namespace::autoclean>. The default content after the md5 sum also makes the
-classes immutable.
+L<namespace::autoclean> (or L<MooseX::MarkAsMethods>, see below). The default
+content after the md5 sum also makes the classes immutable.
 
 It is safe to upgrade your existing Schema to this option.
+
+=head2 protect_overloads
+
+L<namespace::autoclean> does a very effective job of removing non-methods from
+your class, however it has a disturbing tendancy to remove any overloads you've
+defined, as well.  Enabling this option causes L<MooseX::MarkAsMethods> to be
+used instead, which will perform an overload-safe autocleaning.
 
 =head2 col_collision_map
 
@@ -1599,7 +1607,13 @@ sub _dump_to_dir {
         . qq|# DO NOT MODIFY THE FIRST PART OF THIS FILE\n\n|;
 
     if ($self->use_moose) {
-        $schema_text.= qq|use Moose;\nuse namespace::autoclean;\nextends '$schema_base_class';\n\n|;
+        my $autoclean
+            = $self->protect_overloads
+            ? 'MooseX::MarkAsMethods autoclean => 1'
+            : 'namespace::autoclean'
+            ;
+
+        $schema_text.= qq|use Moose;\nuse $autoclean;\nextends '$schema_base_class';\n\n|;
     }
     else {
         $schema_text .= qq|use strict;\nuse warnings;\n\nuse base '$schema_base_class';\n\n|;
