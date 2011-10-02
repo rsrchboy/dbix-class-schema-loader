@@ -1617,12 +1617,13 @@ sub _dump_to_dir {
         . qq|# Created by DBIx::Class::Schema::Loader\n|
         . qq|# DO NOT MODIFY THE FIRST PART OF THIS FILE\n\n|;
 
+    my $autoclean
+        = $self->protect_overloads
+        ? 'MooseX::MarkAsMethods autoclean => 1'
+        : 'namespace::autoclean'
+        ;
+
     if ($self->use_moose) {
-        my $autoclean
-            = $self->protect_overloads
-            ? 'MooseX::MarkAsMethods autoclean => 1'
-            : 'namespace::autoclean'
-            ;
 
         $schema_text.= qq|use Moose;\nuse $autoclean;\nextends '$schema_base_class';\n\n|;
     }
@@ -1681,7 +1682,7 @@ sub _dump_to_dir {
             unless $result_base_class eq 'DBIx::Class::Core';
 
         if ($self->use_moose) {
-            $src_text.= qq|use Moose;\nuse MooseX::NonMoose;\nuse namespace::autoclean;|;
+            $src_text.= qq|use Moose;\nuse MooseX::NonMoose;\nuse $autoclean;|;
 
             # these options 'use base' which is compile time
             if (@{ $self->left_base_classes } || @{ $self->additional_base_classes }) {
